@@ -3,12 +3,16 @@ import pandas as pd
 import io
 import requests
 import os
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import logging
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 _logger = logging.getLogger(__name__)
 
+sched = BlockingScheduler()
 
+
+@sched.scheduled_job('interval', minutes=60)
 def etl():
     """ETL."""
     file_date = date(2020, 2, 25)
@@ -27,7 +31,7 @@ def etl():
     for file in dates:
         file = file.strftime("%Y-%m-%d")
         print(file)
-        url = r"https://raw.githubusercontent.com/DataScienceResearchPeru/covid-19_latinoamerica/master/latam_covid_19_data/daily_reports/{date}.csv".format(date=file)
+        url = r"https://raw.githubusercontent.com/DataScienceResearchPeru/covid-19_latinoamerica/master/daily_reports/{date}.csv".format(date=file)
         raw_string = requests.get(url).content
         if b'404: Not Found\n' not in raw_string:
             try:
@@ -47,9 +51,10 @@ def etl():
 
     df = pd.concat(files, axis=0, ignore_index=True, sort=False)
 
-    return df
-
-
-if __name__ == '__main__':
-    data = etl()
+    _logger.info(f'Updating data')
+    print("[INFO] Updating data")
     data.to_csv('data.csv', index=False)
+    _logger.info(f'Data has been updated on {datetime.now}')
+    print(f"[INFO] Data has been updated on {datetime.now}.")
+
+sched.start()
