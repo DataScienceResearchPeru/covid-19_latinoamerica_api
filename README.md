@@ -37,4 +37,4 @@ export FLASK_APP=app.py
 flask run
 ```
 
-Versión online del API en [https://covid19latam.herokuapp.com/](https://covid19latam.herokuapp.com/)
+Versión online del API en [https://covid19latam2.herokuapp.com/](https://covid19latam2.herokuapp.com/)
